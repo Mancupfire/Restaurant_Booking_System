@@ -39,9 +39,6 @@ public class SearchCriteria {
     public void setSortBy(String sortBy) { this.sortBy = sortBy; }
 }
 
-// Restaurant.java (Enhanced)
-package com.example.restaurant;
-
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -185,14 +182,14 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EnhancedSystemManager {
+public class SystemManager {
     private Map<Integer, Restaurant> restaurants = new HashMap<>();
     private Map<Integer, Customer> customers = new HashMap<>();
     private List<Booking> bookings = new ArrayList<>();
     private SearchIndex searchIndex = new SearchIndex();
     private int bookingSeq = 1;
 
-    public EnhancedSystemManager() {
+    public SystemManager() {
         loadSampleData();
     }
 
@@ -212,7 +209,6 @@ public class EnhancedSystemManager {
         Branch b2 = new Branch(2, "456 Elm St", tables2);
         Branch b3 = new Branch(3, "789 Oak Ave", tables3);
         
-        // Create restaurants with ratings
         Restaurant r1 = new Restaurant(1, "Pasta Palace", "Italian", "Downtown", 25.0, 4.5, Arrays.asList(b1));
         r1.addFeature("WiFi");
         r1.addFeature("Parking");
@@ -236,7 +232,6 @@ public class EnhancedSystemManager {
         addRestaurant(r3);
         addRestaurant(r4);
 
-        // Sample customers
         customers.put(1, new Customer(1, "Alice"));
         customers.put(2, new Customer(2, "Bob"));
         customers.put(3, new Customer(3, "Charlie"));
@@ -405,7 +400,6 @@ public class EnhancedSystemManager {
     public Customer getCustomer(int id) { return customers.get(id); }
 }
 
-// Enhanced UI (updated Main.java)
 package com.example.restaurant;
 
 import javax.swing.*;
@@ -420,7 +414,7 @@ public class Main {
     }
 }
 
-class EnhancedBookingUI extends JFrame {
+class BookingUI extends JFrame {
     private EnhancedSystemManager manager;
     private JTextField tfKeyword, tfMaxBudget, tfMinRating, tfGuests;
     private JComboBox<String> cbCuisine, cbLocation, cbSortBy;
@@ -429,7 +423,7 @@ class EnhancedBookingUI extends JFrame {
     private JButton btnSearch, btnKeywordSearch, btnBook, btnStats;
     private JTextArea taStats;
 
-    public EnhancedBookingUI(EnhancedSystemManager mgr) {
+    public BookingUI(EnhancedSystemManager mgr) {
         super("Enhanced Restaurant Booking System");
         this.manager = mgr;
         setDefaultCloseOperation(EXIT_ON_CLOSE);
