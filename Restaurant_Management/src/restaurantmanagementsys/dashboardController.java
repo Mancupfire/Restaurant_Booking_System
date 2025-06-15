@@ -110,6 +110,9 @@ public class dashboardController implements Initializable {
 
     // ── INTERNAL STATE ───────────────────────────────────────────────────────────
     private ObservableList<categories> availableFDList;
+    private FilteredList<categories> filteredList;
+    private SortedList<categories>   sortedList;
+
     private ObservableList<product>     orderData;
     private SpinnerValueFactory<Integer> spinner;
     private int qty = 0;
@@ -399,36 +402,9 @@ public class dashboardController implements Initializable {
         return DataStore.categoriesList;
     }
 
-    public void availableFDSearch() {
-        FilteredList<categories> filter = new FilteredList<>(availableFDList, e -> true);
-        availableFD_search.textProperty().addListener((obs, oldVal, newVal) -> {
-            filter.setPredicate(cat -> {
-                if (newVal == null || newVal.isEmpty()) {
-                    return true;
-                }
-                String key = newVal.toLowerCase();
-                if (cat.getProductId().toLowerCase().contains(key))      return true;
-                if (cat.getName().toLowerCase().contains(key))           return true;
-                if (cat.getType().toLowerCase().contains(key))           return true;
-                if (cat.getPrice().toString().contains(key))             return true;
-                if (cat.getStatus().toLowerCase().contains(key))         return true;
-                return false;
-            });
-        });
-        SortedList<categories> sortList = new SortedList<>(filter);
-        sortList.comparatorProperty().bind(availableFD_tableView.comparatorProperty());
-        availableFD_tableView.setItems(sortList);
-    }
+    public void availableFDSearch() { }
+    public void availableFDShowData() { availableFD_tableView.refresh(); }
 
-    public void availableFDShowData() {
-        availableFDList = availableFDListData();
-        availableFD_col_productID.setCellValueFactory(new PropertyValueFactory<>("productId"));
-        availableFD_col_productName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        availableFD_col_type.setCellValueFactory(new PropertyValueFactory<>("type"));
-        availableFD_col_price.setCellValueFactory(new PropertyValueFactory<>("price"));
-        availableFD_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
-        availableFD_tableView.setItems(availableFDList);
-    }
 
     public void availableFDSelect() {
         categories catData = availableFD_tableView.getSelectionModel().getSelectedItem();
@@ -714,45 +690,22 @@ public class dashboardController implements Initializable {
     // ──────────────────────────────────────────────────────────────────────────────
     public void switchForm(ActionEvent event) {
         if (event.getSource() == dashboard_btn) {
-            dashboard_form.setVisible(true);
-            availableFD_form.setVisible(false);
-            order_form.setVisible(false);
-            dashboard_btn.setStyle("-fx-background-color: #3796a7; -fx-text-fill: #fff;");
-            avaialbeFD_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
-            order_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
-
-            dashboardNC();
-            dashboardTI();
-            dashboardTIncome();
-            dashboardNOCCChart();
-            dashboardICC();
-
+            dashboard_form.setVisible(true); availableFD_form.setVisible(false); order_form.setVisible(false);
+            styleActive(dashboard_btn);
+            dashboardNC(); dashboardTI(); dashboardTIncome();
+            dashboardNOCCChart(); dashboardICC();
         } else if (event.getSource() == avaialbeFD_btn) {
-            dashboard_form.setVisible(false);
-            availableFD_form.setVisible(true);
-            order_form.setVisible(false);
-            avaialbeFD_btn.setStyle("-fx-background-color: #3796a7; -fx-text-fill: #fff;");
-            dashboard_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
-            order_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
-
-            availableFDShowData();
-            availableFDSearch();
-
+            dashboard_form.setVisible(false); availableFD_form.setVisible(true); order_form.setVisible(false);
+            styleActive(avaialbeFD_btn);
+            // no showData or search
         } else if (event.getSource() == order_btn) {
-            dashboard_form.setVisible(false);
-            availableFD_form.setVisible(false);
-            order_form.setVisible(true);
-            order_btn.setStyle("-fx-background-color: #3796a7; -fx-text-fill: #fff;");
-            avaialbeFD_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
-            dashboard_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
-
-            orderProductId();
-            orderProductName();
-            orderSpinner();
-            orderDisplayData();
-            orderDisplayTotal();
+            dashboard_form.setVisible(false); availableFD_form.setVisible(false); order_form.setVisible(true);
+            styleActive(order_btn);
+            orderProductId(); orderProductName(); orderSpinner(); orderDisplayData(); orderDisplayTotal();
         }
     }
+
+
 
     public void logout(ActionEvent event) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -807,30 +760,46 @@ public class dashboardController implements Initializable {
         Stage stage = (Stage) main_form.getScene().getWindow();
         stage.setIconified(true);
     }
+    
+    private void styleActive(Button btn) {
+        dashboard_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
+        avaialbeFD_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
+        order_btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #000;");
+        btn.setStyle("-fx-background-color: #3796a7; -fx-text-fill: #fff;");
+    }
+
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Pre-populate dashboard
-        dashboardNC();
-        dashboardTI();
-        dashboardTIncome();
-        dashboardNOCCChart();
-        dashboardICC();
+        // Dashboard
+        dashboardNC(); dashboardTI(); dashboardTIncome();
+        dashboardNOCCChart(); dashboardICC(); displayUsername();
 
-        displayUsername();
-        availableFDStatus();
-        availableFDType();
-        availableFDShowData();
+        // AvailableFD bind + filter
+        availableFDList = DataStore.categoriesList;
+        filteredList = new FilteredList<>(availableFDList, p -> true);
+        sortedList = new SortedList<>(filteredList);
+        sortedList.comparatorProperty().bind(availableFD_tableView.comparatorProperty());
+        availableFD_tableView.setItems(sortedList);
+        availableFD_col_productID.setCellValueFactory(new PropertyValueFactory<>("productId"));
+        availableFD_col_productName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        availableFD_col_type.setCellValueFactory(new PropertyValueFactory<>("type"));
+        availableFD_col_price.setCellValueFactory(new PropertyValueFactory<>("price"));
+        availableFD_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
+        availableFD_search.textProperty().addListener((obs, oldV, newV) -> {
+            String key = (newV == null ? "" : newV.trim().toLowerCase());
+            filteredList.setPredicate(cat -> {
+                if (key.isEmpty()) return true;
+                return cat.getProductId().toLowerCase().contains(key)
+                    || cat.getName().toLowerCase().contains(key);
+            });
+        });
+        availableFDStatus(); availableFDType();
 
-        orderProductId();
-        orderProductName();
-        orderSpinner();
-        orderDisplayData();
-        orderDisplayTotal();
-
-        // Ban đầu, ẩn label ngày nếu không dùng
-        if (currentDateLabel != null) {
-            currentDateLabel.setText("");
-        }
+        // Order init
+        orderProductId(); orderProductName(); orderSpinner(); orderDisplayData(); orderDisplayTotal();
+        if (currentDateLabel != null) currentDateLabel.setText("");
     }
+
 }
