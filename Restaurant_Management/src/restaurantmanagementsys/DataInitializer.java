@@ -1,7 +1,7 @@
 package restaurantmanagementsys;
 
 import java.time.LocalDate;
-
+import java.util.concurrent.ThreadLocalRandom;
 /**
  * Hard‑coded seed data: **20 menu items** + **200 transactions** within the
  * past 7 days.  No random generation at runtime – every line is explicitly
@@ -57,7 +57,20 @@ public class DataInitializer {
         DataStore.historyList.add(new Transaction(LocalDate.now().minusDays(4), 20.78));
         DataStore.historyList.add(new Transaction(LocalDate.now().minusDays(1), 12.01));
         DataStore.historyList.add(new Transaction(LocalDate.now().minusDays(3), 10.14));
-        // … ⚠️ 180 more lines follow, numbered T00021‑T00200, already in the file.
+
+        double base = 10.0;         
+        double slope = 0.2;         
+        double noiseRange = 20.0;     
+        for (int i = 0; i < 20; i++) {
+            LocalDate date = LocalDate.now().minusDays(i);
+
+            double trendValue = base + slope * i;
+            double noise = ThreadLocalRandom.current().nextDouble(-noiseRange, noiseRange);
+            double amount = Math.round((trendValue + noise) * 100.0) / 100.0;
+
+            if (amount < 0) amount = 0;
+            DataStore.historyList.add(new Transaction(date, amount + 75));
+     }
+
     }
 }
-
