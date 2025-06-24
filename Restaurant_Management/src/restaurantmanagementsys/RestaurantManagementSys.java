@@ -10,16 +10,6 @@ import javafx.stage.StageStyle;
 
 import java.util.Objects;
 
-/**
- * Clean JavaFX launcher.
- * <p>
- * Fixes:
- * <ul>
- *     <li>Ensures FXML resource is found (uses <code>Objects.requireNonNull</code>).</li>
- *     <li>No duplicate Scene creation.</li>
- *     <li>Transparent, draggable window remains.</li>
- * </ul>
- */
 public class RestaurantManagementSys extends Application {
     private double x, y;
 
